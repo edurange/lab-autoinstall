@@ -1,0 +1,57 @@
+#cloud-config
+#
+# Ubuntu autoinstall profile for development VMs
+# Target release: Ubuntu 24.04 LTS
+# Last validated: 24.04.3 installer ISO
+#
+# Design goals:
+# - Reproducible base image
+# - Desktop tools available, not auto-started
+# - Predictable package versions (no unattended upgrades)
+#
+
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-24-04-3-desktop-base
+    username: ""
+    password: ""
+    realname: ""
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+    variant: ""
+  ssh:
+    install-server: true
+    allow-pw: true
+  storage:
+    layout:
+      name: lvm
+  packages:
+    - ubuntu-desktop
+    - build-essential
+    - clang
+    - llvm
+    - bpftool
+    - python3.12-venv
+    - perl
+    - bzip2
+    - tar
+    - git
+  updates:
+    security: true
+    minimal: false
+    # Disable auto-install
+    auto-upgrade: false
+  late-commands:
+    # Boot into non-graphical mode by default
+    - curtin in-target --target=/target -- systemctl set-default multi-user.target
+    # Update package index and upgrade to latest stable manually
+    - curtin in-target --target=/target -- apt update
+    - curtin in-target --target=/target -- apt upgrade -y
+    # Disable screen lock and suspend
+    - curtin in-target --target=/target -- gsettings set org.gnome.desktop.session idle-delay 0
+    - curtin in-target --target=/target -- gsettings set org.gnome.desktop.screensaver lock-enabled false
+    # Configure global git defaults
+    - curtin in-target --target=/target -- git config --system init.defaultBranch main
+    - curtin in-target --target=/target -- git config --system fetch.prune true

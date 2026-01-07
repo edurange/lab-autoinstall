@@ -14,9 +14,9 @@ autoinstall:
   version: 1
   identity:
     hostname: ubuntu-24-04-3-desktop-base
-    username: ""
-    password: ""
-    realname: ""
+    username: sysadmin
+    password: "$6$CHANGEME$QqHVx3DHLTZ1O.oelrIM/izmcW.2tuaHNiT0U30w.7kKn2EAuBjGW3QOPk.R2wkAT660r5xMtpSCEY675z6FZ/"
+    realname: Default System Administrator
   locale: en_US.UTF-8
   keyboard:
     layout: us
@@ -42,12 +42,17 @@ autoinstall:
     - git
   updates:
     security: true
-    minimal: false
-    # Disable auto-install
-    auto-upgrade: false
   late-commands:
     # Boot into non-graphical mode by default
     - curtin in-target --target=/target -- systemctl set-default multi-user.target
+    # Default password expires immediately
+    - curtin in-target --target=/target -- chage -d 0 sysadmin
+    # Stop background apt execution
+    - curtin in-target --target=/target -- systemctl disable --now apt-daily.timer
+    - curtin in-target --target=/target -- systemctl disable --now apt-daily-upgrade.timer
+    - curtin in-target --target=/target -- systemctl mask apt-daily.service
+    - curtin in-target --target=/target -- systemctl mask apt-daily-upgrade.service
+    - curtin in-target --target=/target -- systemctl mask packagekit.service
     # Update package index and upgrade to latest stable manually
     - curtin in-target --target=/target -- apt update
     - curtin in-target --target=/target -- apt upgrade -y
@@ -57,3 +62,22 @@ autoinstall:
     # Configure global git defaults
     - curtin in-target --target=/target -- git config --system init.defaultBranch main
     - curtin in-target --target=/target -- git config --system fetch.prune true
+    # Set MOTD
+    - |
+      curtin in-target --target=/target -- tee /etc/motd.d/10-first-login << 'EOF'
+      Welcome! This system was installed using a default sysadmin account.
+      Please create your own user before starting work.
+      
+          1. Create a user account:
+              sudo adduser <newuser>
+              
+          2. Add the user to the 'sudo' group for administrative privileges:
+              sudo usermod -aG sudo <newuser>
+              
+          3. Verify the changes:
+              id <newuser>
+              groups <newuser>
+            ... should include your new username, and the group 'sudo'
+            
+      Then log out and log in as your own account.
+      EOF

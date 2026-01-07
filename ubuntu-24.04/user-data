@@ -67,17 +67,17 @@ autoinstall:
       curtin in-target --target=/target -- tee /etc/motd.d/10-first-login << 'EOF'
       Welcome! This system was installed using a default sysadmin account.
       Please create your own user before starting work.
-      
+
           1. Create a user account:
               sudo adduser <newuser>
-              
+
           2. Add the user to the 'sudo' group for administrative privileges:
               sudo usermod -aG sudo <newuser>
-              
+
           3. Verify the changes:
               id <newuser>
               groups <newuser>
             ... should include your new username, and the group 'sudo'
-            
+
       Then log out and log in as your own account.
       EOF

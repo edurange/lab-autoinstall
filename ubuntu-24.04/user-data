@@ -30,6 +30,7 @@ autoinstall:
   packages:
     - ubuntu-desktop
     - build-essential
+    - keychain
     - clang
     - llvm
     - bpftool

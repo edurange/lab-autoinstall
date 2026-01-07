@@ -33,6 +33,7 @@ autoinstall:
     - clang
     - llvm
     - bpftool
+    - libbpf-dev
     - python3.12-venv
     - perl
     - bzip2

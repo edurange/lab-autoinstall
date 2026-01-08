@@ -40,8 +40,6 @@ autoinstall:
     - bzip2
     - tar
     - git
-  updates:
-    security: true
   late-commands:
     # Boot into non-graphical mode by default
     - curtin in-target --target=/target -- systemctl set-default multi-user.target

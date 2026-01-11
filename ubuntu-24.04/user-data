@@ -30,39 +30,69 @@ autoinstall:
   packages:
     - ubuntu-desktop
     - build-essential
+    - linux-tools-generic
     - keychain
     - clang
     - llvm
-    - bpftool
     - libbpf-dev
     - python3.12-venv
     - perl
     - bzip2
     - tar
     - git
+    
+  user-data:
+    chpasswd:
+      list: |
+        sysadmin:$6$CHANGEME$QqHVx3DHLTZ1O.oelrIM/izmcW.2tuaHNiT0U30w.7kKn2EAuBjGW3QOPk.R2wkAT660r5xMtpSCEY675z6FZ/
+      expire: true
+    
   late-commands:
     # Boot into non-graphical mode by default
+    - curtin in-target --target=/target -- systemctl disable gdm3.service
     - curtin in-target --target=/target -- systemctl set-default multi-user.target
-    # Default password expires immediately
-    - curtin in-target --target=/target -- chage -d 0 sysadmin
     # Stop background apt execution
-    - curtin in-target --target=/target -- systemctl disable --now apt-daily.timer
-    - curtin in-target --target=/target -- systemctl disable --now apt-daily-upgrade.timer
-    - curtin in-target --target=/target -- systemctl mask apt-daily.service
-    - curtin in-target --target=/target -- systemctl mask apt-daily-upgrade.service
-    - curtin in-target --target=/target -- systemctl mask packagekit.service
+    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.timer
+    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily-upgrade.timer
+    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.service
+    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.service
+    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/packagekit.service
     # Update package index and upgrade to latest stable manually
     - curtin in-target --target=/target -- apt update
-    - curtin in-target --target=/target -- apt upgrade -y
     # Disable screen lock and suspend
-    - curtin in-target --target=/target -- gsettings set org.gnome.desktop.session idle-delay 0
-    - curtin in-target --target=/target -- gsettings set org.gnome.desktop.screensaver lock-enabled false
+    - curtin in-target --target=/target -- mkdir -p /etc/dconf/db/local.d
+    - curtin in-target --target=/target -- apt install -y dconf-cli
+    - |
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/dconf/db/local.d/00-power
+      [org/gnome/desktop/session]
+      idle-delay=uint32 0
+
+      [org/gnome/desktop/screensaver]
+      lock-enabled=false
+      EOF"
+    - curtin in-target --target=/target -- dconf update
     # Configure global git defaults
     - curtin in-target --target=/target -- git config --system init.defaultBranch main
     - curtin in-target --target=/target -- git config --system fetch.prune true
-    # Set MOTD
+    # Suppress late output from cloud-init, which may occlude the login prompt
     - |
-      curtin in-target --target=/target -- tee /etc/motd.d/10-first-login << 'EOF'
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/profile.d/00-clear-cloud-init.sh
+      # Clear noisy cloud-init output after boot
+      if command -v cloud-init >/dev/null 2>&1; then
+          if cloud-init status --wait >/dev/null 2>&1; then
+              clear
+          fi
+      fi
+      EOF"
+    - curtin in-target --target=/target -- systemctl disable cloud-init-status.service
+    - curtin in-target --target=/target -- systemctl mask cloud-init-status.service
+    # Emit instructions during first login
+    - curtin in-target --target=/target -- mkdir -p /etc/profile.d
+    - |
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/profile.d/first-login-msg.sh
+      #!/bin/sh
+      cat << 'MSG'
+
       Welcome! This system was installed using a default sysadmin account.
       Please create your own user before starting work.
 
@@ -77,5 +107,8 @@ autoinstall:
               groups <newuser>
             ... should include your new username, and the group 'sudo'
 
-      Then log out and log in as your own account.
-      EOF
+      After completing these steps, you can remove this message by running:
+          sudo rm /etc/profile.d/first-login-msg.sh
+
+      MSG
+      EOF"

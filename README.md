@@ -20,7 +20,7 @@ Adjust the settings of the virtual machine to add a bridged network adapter and 
 - Select the "Storage" section
 - In the "Devices" list, select "Controller: SATA"
 - In the "Attributes" panel on the right side of the window, change "Port Count" to 3
-- Back on the "Controller: SATA" row, there are two icons on the right with green pluses - select the left on of the pair, which should have the tooltip "Add optical drive"
+- Back on the "Controller: SATA" row, there are two icons on the right with green pluses - select the left one of the pair, which should have the tooltip "Add optical drive"
 - The autoinstall file isn't really an optical drive, but we can treat it as read-only, which I think is about what that means here; select it
 - Click "OK" to apply the configuration changes
 

@@ -28,9 +28,12 @@ Start the VM
 - Obviously, at some point you've got to start it
 - It takes a bit of booting for cloud-init to kick in
 - Once cloud-init is running, it will ask you to confirm the installation once with a yes or no - after that, it's touchless
-- The desktop environment isn't on the server installation media, so pulling that down takes a while
+- The desktop environment isn't on the server installation media, so pulling that down takes a while; the installer may be relatively inactive for several minutes at a time while doing things like resolving package dependencies or downloading from the package repository
+- At times the installer may only output messages such as "subiquity/Network/_send_update" repeatedly while waiting for a background process to complete - this is not evidence of a failure or infinite loop, it is just the network service reporting state changes while something slow happens
 - Treat yourself to a cup of coffee - you've earned it, tiger
 
 Minimal system configuration
 - The installer sets up one sudoer user account called 'sysadmin' with a password that must be changed immediately upon login - we should discuss how we want to handle this in practice, but for now you can guess it
 - The system is configured by default with an extra MOTD that instructs the first user to create a normal user account, add it to the sudo group, and switch to that
+- sshd should be enabled, so you can SSH in right away
+- To start the desktop environment, use `systemctl start gdm3` (**G**NOME **D**esktop **M**anager **3**)

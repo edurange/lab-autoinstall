@@ -84,8 +84,6 @@ autoinstall:
           fi
       fi
       EOF"
-    - curtin in-target --target=/target -- systemctl disable cloud-init-status.service
-    - curtin in-target --target=/target -- systemctl mask cloud-init-status.service
     # Emit instructions during first login
     - curtin in-target --target=/target -- mkdir -p /etc/profile.d
     - |

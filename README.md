@@ -29,7 +29,7 @@ Start the VM
 - It takes a bit of booting for cloud-init to kick in
 - Once cloud-init is running, it will ask you to confirm the installation once with a yes or no - after that, it's touchless
 - The desktop environment isn't on the server installation media, so pulling that down takes a while; the installer may be relatively inactive for several minutes at a time while doing things like resolving package dependencies or downloading from the package repository
-- At times the installer may only output messages such as "subiquity/Network/_send_update" repeatedly while waiting for a background process to complete - this is not evidence of a failure or infinite loop, it is just the network service reporting state changes while something slow happens
+- At times the installer may only output messages such as "subiquity/Network/_send_update" repeatedly while waiting for a background process to complete - this is not evidence of a failure or infinite loop, it is just the network service reporting state changes while something slow happens, so do not interrupt the installer
 - Treat yourself to a cup of coffee - you've earned it, tiger
 
 Minimal system configuration

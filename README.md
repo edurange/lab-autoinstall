@@ -30,6 +30,9 @@ Start the VM
 - Once cloud-init is running, it will ask you to confirm the installation once with a yes or no - after that, it's touchless
 - The desktop environment isn't on the server installation media, so pulling that down takes a while; the installer may be relatively inactive for several minutes at a time while doing things like resolving package dependencies or downloading from the package repository
 - At times the installer may only output messages such as "subiquity/Network/_send_update" repeatedly while waiting for a background process to complete - this is not evidence of a failure or infinite loop, it is just the network service reporting state changes while something slow happens, so do not interrupt the installer
+- To inspect the progress of the installer you can use Ctrl+Alt+F2 to switch to a different virtual console (you may need to enter this key combination in the soft keyboard)
+- While in the installer shell in the virtual console, take caution to do only read-only operations; do not use `apt`, as contention for locks can cause the installer to fail without warning
+- You can safely view logfiles, or get diagnostic information with `ps`, `iostat`, `top`, or `ip`; try `sudo tail -f /var/log/installer/curtin-install.log`
 - Treat yourself to a cup of coffee - you've earned it, tiger
 
 Minimal system configuration

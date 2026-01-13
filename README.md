@@ -1,4 +1,4 @@
-These are install configurations for subiquity ("ubiquity for servers"), Canonical's official tool for automating Ubuntu server installation. subiquity is based on cloud-init, a tool for standardizing Linux deployment.
+These are install configurations for `subiquity` ("`ubiquity` for servers"), Canonical's official method for automating Ubuntu server installation. `subiquity` is based on `cloud-init`, a tool for standardizing Linux deployment.
 
 This sets up only basic development dependencies, not an EDURange install itself. Currently this includes:
 - Installing development- and git-related dependencies: `build-essential`, `keychain`, `clang`, `llvm`, `python3.12-venv`, `perl`, `bzip2`, `tar`, `git`
@@ -8,7 +8,7 @@ This sets up only basic development dependencies, not an EDURange install itself
 - Disabling automatic screen lock
 - Configure basic `git` defaults for compatibility with GitHub
 
-subiquity/cloud-data config files can be supplied to the installer in a number of ways. Here, I've created an ISO disk image that is mounted alongside the installation media. If you wanted to use this on a physical machine, you'd put the autoinstall ISO on a thumb drive or SD card, and the server installer on a DVD or other USB drive, and start the computer with both attached. The Ubuntu installer looks for a volume with a certain name, and if it finds it, loads config data from there. In a VM, we do something similar.
+`subiquity`/`cloud-init` config files can be supplied to the installer in a number of ways. Here, I've created an ISO disk image that is mounted alongside the installation media. If you wanted to use this on a physical machine, you'd put the autoinstall ISO on a thumb drive or SD card, and the server installer on a DVD or other USB drive, and start the computer with both attached. The Ubuntu installer looks for a volume with a certain name, and if it finds it, loads config data from there. In a VM, we do something similar.
 
 # Lo-fi instructions in VirtualBox:
 
@@ -34,8 +34,8 @@ Adjust the settings of the virtual machine to add a bridged network adapter and 
 
 Start the VM:
 - Obviously, at some point you've got to start it
-- It takes a bit of booting for cloud-init to kick in
-- Once cloud-init is running, it will ask you to confirm the installation once with a yes or no - after that, it's touchless
+- It takes a bit of booting for `cloud-init` to kick in
+- Once `cloud-init` is running, it will ask you to confirm the installation once with a yes or no - after that, it's touchless
 - The desktop environment isn't on the server installation media, so pulling that down takes a while; the installer may be relatively inactive for several minutes at a time while doing things like resolving package dependencies or downloading from the package repository
 - At times the installer may only output messages such as "subiquity/Network/_send_update" repeatedly while waiting for a background process to complete - this is not evidence of a failure or infinite loop, it is just the network service reporting state changes while something slow happens, so do not interrupt the installer
 - To inspect the progress of the installer you can use Ctrl+Alt+F2 to switch to a different virtual console (you may need to enter this key combination in the soft keyboard)
@@ -45,7 +45,7 @@ Start the VM:
 
 Minimal system configuration:
 - The installer sets up one sudoer user account called 'sysadmin' with a password that must be changed immediately upon login - we should discuss how we want to handle this in practice, but for now you can guess it
-- The system is configured by default with an extra MOTD that instructs the first user to create a normal user account, add it to the sudo group, and switch to that
-- sshd is set up but disabled by default, to prevent remote log ins before the default password has been changed - you can start it with `sudo systemctl enable --now ssh.service`
+- The system is configured by default with an extra MOTD that instructs the first user to create a normal user account, add it to the `sudo` group, and switch to that
+- `sshd` is set up but disabled by default, to prevent remote log ins before the default password has been changed - you can start it with `sudo systemctl enable --now ssh.service`
 - To start the desktop environment, use `systemctl start gdm3` (**G**NOME **D**esktop **M**anager **3**)
 - If you indeed used VirtualBox, you might want to `sudo apt install virtualbox-guest-utils virtualbox-guest-x11` or select "Devices" > "Insert Guest Additions CD image..." from the menu of the VirtualBox window

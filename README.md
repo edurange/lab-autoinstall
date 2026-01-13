@@ -24,7 +24,7 @@ Adjust the settings of the virtual machine to add a bridged network adapter and 
 - Images are attached to releases in this repo, such as https://github.com/edurange/lab-autoinstall/releases/download/v0.1-alpha/autoinstall-24.04.iso - you can generate your own image, but I'm not prepared to give a full explanation of what's required here
 - Select the VM in the main window, and then click "Settings" in the toolbar or right-click context menu
 - Select the "Network" section
-- The view should default to the first tab in the "Network" section, "Adapter 1"; under "Attached to" change the drop-down menu to "Bridged Adapter"
+- The view should default to the first tab in the "Network" section, "Adapter 1"; under "Attached to" change the drop-down menu to "Bridged Adapter" (this allows your VM to be seen on the local network, which makes SSH access simpler)
 - Select the "Storage" section
 - In the "Devices" list, select "Controller: SATA"
 - In the "Attributes" panel on the right side of the window, change "Port Count" to 3

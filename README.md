@@ -1,5 +1,12 @@
 These are install configurations for subiquity ("ubiquity for servers"), Canonical's official tool for automating Ubuntu server installation. subiquity is based on cloud-init, a tool for standardizing Linux deployment.
 
+This sets up only basic development dependencies, not an EDURange install itself. Currently this includes:
+- Installing development- and git-related dependencies: `build-essential`, `keychain`, `clang`, `llvm`, `python3.12-venv`, `perl`, `bzip2`, `tar`, `git`
+- The Ubuntu Desktop environment, installed but not enabled at login
+- Disabling automatic update services (`apt-daily`, `PackageKit`, `snapd`, `fwupd`) to prevent unexpected lock contention that can cause installation failure
+- Disabling automatic screen lock
+- Configure basic `git` defaults for compatibility with GitHub
+
 subiquity/cloud-data config files can be supplied to the installer in a number of ways. Here, I've created an ISO disk image that is mounted alongside the installation media. If you wanted to use this on a physical machine, you'd put the autoinstall ISO on a thumb drive or SD card, and the server installer on a DVD or other USB drive, and start the computer with both attached. The Ubuntu installer looks for a volume with a certain name, and if it finds it, loads config data from there. In a VM, we do something similar.
 
 # Lo-fi instructions in VirtualBox:

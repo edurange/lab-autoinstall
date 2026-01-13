@@ -2,7 +2,8 @@ These are install configurations for subiquity ("ubiquity for servers"), Canonic
 
 This sets up only basic development dependencies, not an EDURange install itself. Currently this includes:
 - Installing development- and git-related dependencies: `build-essential`, `keychain`, `clang`, `llvm`, `python3.12-venv`, `perl`, `bzip2`, `tar`, `git`
-- The Ubuntu Desktop environment, installed but not enabled at login
+- `sshd`, installed but not enabled at login for security reasons
+- The Ubuntu Desktop environment, installed but not enabled at login for usability and resource conservation reasons
 - Disabling automatic update services (`apt-daily`, `PackageKit`, `snapd`, `fwupd`) to prevent unexpected lock contention that can cause installation failure
 - Disabling automatic screen lock
 - Configure basic `git` defaults for compatibility with GitHub

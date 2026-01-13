@@ -38,6 +38,6 @@ Start the VM:
 Minimal system configuration:
 - The installer sets up one sudoer user account called 'sysadmin' with a password that must be changed immediately upon login - we should discuss how we want to handle this in practice, but for now you can guess it
 - The system is configured by default with an extra MOTD that instructs the first user to create a normal user account, add it to the sudo group, and switch to that
-- sshd should be enabled, so you can SSH in right away
+- sshd is set up but disabled by default, to prevent remote log ins before the default password has been changed - you can start it with `sudo systemctl enable --now ssh.service`
 - To start the desktop environment, use `systemctl start gdm3` (**G**NOME **D**esktop **M**anager **3**)
 - If you indeed used VirtualBox, you might want to `sudo apt install virtualbox-guest-utils virtualbox-guest-x11` or select "Devices" > "Insert Guest Additions CD image..." from the menu of the VirtualBox window

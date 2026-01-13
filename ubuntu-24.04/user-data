@@ -48,15 +48,27 @@ autoinstall:
       expire: true
     
   late-commands:
+    # Disable ssh until the default password has been changed
+    - curtin in-target --target=/target -- systemctl disable ssh.service
     # Boot into non-graphical mode by default
     - curtin in-target --target=/target -- systemctl disable gdm3.service
     - curtin in-target --target=/target -- systemctl set-default multi-user.target
-    # Stop background apt execution
-    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.timer
-    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily-upgrade.timer
-    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.service
-    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/apt-daily.service
-    - curtin in-target --target=/target -- ln -sf /dev/null /etc/systemd/system/packagekit.service
+    # Disable automatic apt updates
+    - curtin in-target --target=/target -- systemctl mask \
+        apt-daily.service \
+        apt-daily.timer \
+        apt-daily-upgrade.service \
+        apt-daily-upgrade.timer
+    # Disable automatic PackageKit / GNOME updates
+    - curtin in-target --target=/target -- systemctl mask \
+        packagekit.service \
+        packagekit-offline-update.service
+    # Disable automatic snapd updates
+    - curtin in-target --target=/target -- systemctl disable snapd.service snapd.socket
+    - curtin in-target --target=/target -- systemctl mask snapd.service snapd.socket
+    # Disable automatic firmware updates
+    - curtin in-target --target=/target -- systemctl disable fwupd.service
+    - curtin in-target --target=/target -- systemctl mask fwupd.service
     # Update package index and upgrade to latest stable manually
     - curtin in-target --target=/target -- apt update
     # Disable screen lock and suspend
@@ -74,16 +86,18 @@ autoinstall:
     # Configure global git defaults
     - curtin in-target --target=/target -- git config --system init.defaultBranch main
     - curtin in-target --target=/target -- git config --system fetch.prune true
-    # Suppress late output from cloud-init, which may occlude the login prompt
+    # Wait for getty output to finish, which may occlude the login prompt
+    - curtin in-target --target=/target -- mkdir -p /etc/systemd/system/getty@tty1.service.d
     - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/profile.d/00-clear-cloud-init.sh
-      # Clear noisy cloud-init output after boot
-      if command -v cloud-init >/dev/null 2>&1; then
-          if cloud-init status --wait >/dev/null 2>&1; then
-              clear
-          fi
-      fi
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/systemd/system/getty@tty1.service.d/override.conf
+      [Unit]
+      After=cloud-init-final.service
+      Wants=cloud-init-final.service
+
+      [Service]
+      ExecStartPre=/usr/bin/test -f /run/cloud-init/result.json
       EOF"
+    - curtin in-target --target=/target -- systemctl daemon-reload
     # Emit instructions during first login
     - curtin in-target --target=/target -- mkdir -p /etc/profile.d
     - |
@@ -104,6 +118,9 @@ autoinstall:
               id <newuser>
               groups <newuser>
             ... should include your new username, and the group 'sudo'
+
+          4. Enable and start the ssh server:
+              sudo systemctl enable --now ssh.service
 
       After completing these steps, you can remove this message by running:
           sudo rm /etc/profile.d/first-login-msg.sh

@@ -1,8 +1,8 @@
 #cloud-config
 #
 # Ubuntu autoinstall profile for development VMs
-# Target release: Ubuntu 24.04 LTS
-# Last validated: 24.04.3 installer ISO
+# Target release: Ubuntu 24.04 LTS Server
+# Last validated: 24.04.3 server installer ISO
 #
 # Design goals:
 # - Reproducible base image

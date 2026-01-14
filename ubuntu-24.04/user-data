@@ -13,7 +13,7 @@
 autoinstall:
   version: 1
   identity:
-    hostname: ubuntu-24-04-3-desktop-base
+    hostname: ubuntu2404server
     username: sysadmin
     password: "$6$CHANGEME$QqHVx3DHLTZ1O.oelrIM/izmcW.2tuaHNiT0U30w.7kKn2EAuBjGW3QOPk.R2wkAT660r5xMtpSCEY675z6FZ/"
     realname: Default System Administrator

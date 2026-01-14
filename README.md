@@ -44,7 +44,7 @@ Start the VM:
 - Treat yourself to a cup of coffee - you've earned it, tiger
 
 Minimal system configuration:
-- The installer sets up one sudoer user account called 'sysadmin' with a password that must be changed immediately upon login - we should discuss how we want to handle this in practice, but for now you can guess it
+- The installer sets up one sudoer user account called `sysadmin` with a password that must be changed immediately upon login - we should discuss how we want to handle this in practice, but for now you can guess it
 - The system is configured by default with an extra MOTD that instructs the first user to create a normal user account, add it to the `sudo` group, and switch to that
 - `sshd` is set up but disabled by default, to prevent remote log ins before the default password has been changed - you can start it with `sudo systemctl enable --now ssh.service`
 - To start the desktop environment, use `systemctl start gdm3` (**G**NOME **D**esktop **M**anager **3**)

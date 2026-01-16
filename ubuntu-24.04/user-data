@@ -86,7 +86,7 @@ autoinstall:
     # Configure global git defaults
     - curtin in-target --target=/target -- git config --system init.defaultBranch main
     - curtin in-target --target=/target -- git config --system fetch.prune true
-    # Wait for getty output to finish, which may occlude the login prompt
+    # Wait for getty to finish to avoid login prompt race with late services
     - curtin in-target --target=/target -- mkdir -p /etc/systemd/system/getty@tty1.service.d
     - |
       curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/systemd/system/getty@tty1.service.d/override.conf
@@ -97,7 +97,34 @@ autoinstall:
       [Service]
       ExecStartPre=/usr/bin/test -f /run/cloud-init/result.json
       EOF"
-    - curtin in-target --target=/target -- systemctl daemon-reload
+    - |
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /usr/local/sbin/cleanup-getty-override.sh
+      #!/bin/bash
+      cat << 'OVERRIDE_EOF' > /etc/systemd/system/getty@tty1.service.d/override.conf
+      [Unit]
+      After=systemd-update-utmp-runlevel.service apport.service
+      Wants=systemd-update-utmp-runlevel.service apport.service
+      OVERRIDE_EOF
+      
+      rm -f /etc/systemd/system/cleanup-getty-override.service
+      rm -f /etc/systemd/system/multi-user.target.wants/cleanup-getty-override.service
+      rm -f /usr/local/sbin/cleanup-getty-override.sh
+      EOF"
+    - curtin in-target --target=/target -- chmod +x /usr/local/sbin/cleanup-getty-override.sh
+    - |
+      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/systemd/system/cleanup-getty-override.service
+      [Unit]
+      Description=Mutate getty override after first boot
+      After=multi-user.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/cleanup-getty-override.sh
+
+      [Install]
+      WantedBy=multi-user.target
+      EOF"
+    - curtin in-target --target=/target -- systemctl enable cleanup-getty-override.service
     # Emit instructions during first login
     - curtin in-target --target=/target -- mkdir -p /etc/profile.d
     - |

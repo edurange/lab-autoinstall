@@ -8,6 +8,10 @@ This sets up only basic development dependencies, not an EDURange install itself
 - Disabling automatic screen lock
 - Configure basic `git` defaults for compatibility with GitHub
 
+Additionally, the installer places some utility scripts into the filesystem:
+- `/etc/profile.d/first-login-msg.sh` makes an announcement on login instructing the end user to create unique account with `adduser` and enable SSH after initial setup (changing the default password)
+- `/usr/local/sbin/reset-identity.sh` can be used to reset key identifying information on the system, such as hostname and machine ID, making it easier to use systems instanced by cloning - as machines with the same ID but distinct network addresses or other features will trigger security alerts or credential invalidation in some tools
+
 `subiquity`/`cloud-init` config files can be supplied to the installer in a number of ways. Here, I've created an ISO disk image that is mounted alongside the installation media. If you wanted to use this on a physical machine, you'd put the autoinstall ISO on a thumb drive or SD card, and the server installer on a DVD or other USB drive, and start the computer with both attached. The Ubuntu installer looks for a volume with a certain name, and if it finds it, loads config data from there. In a VM, we do something similar.
 
 # Lo-fi instructions in VirtualBox:

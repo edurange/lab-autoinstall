@@ -1,0 +1,10 @@
+[Unit]
+Description=Mutate getty override after first boot
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cleanup-getty-override.sh
+
+[Install]
+WantedBy=multi-user.target

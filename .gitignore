@@ -3,3 +3,4 @@
 
 # Local Mac filesystem cache
 .DS_Store
+._*

@@ -48,6 +48,9 @@ autoinstall:
       expire: true
     
   late-commands:
+    # Mount the autoinstall ISO to /cidata for easy access
+    - mkdir -p /run/cidata
+    - mount $(blkid -L cidata) /run/cidata
     # Disable ssh until the default password has been changed
     - curtin in-target --target=/target -- systemctl disable ssh.service
     # Boot into non-graphical mode by default
@@ -72,85 +75,26 @@ autoinstall:
     # Update package index and upgrade to latest stable manually
     - curtin in-target --target=/target -- apt update
     # Disable screen lock and suspend
-    - curtin in-target --target=/target -- mkdir -p /etc/dconf/db/local.d
     - curtin in-target --target=/target -- apt install -y dconf-cli
-    - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/dconf/db/local.d/00-power
-      [org/gnome/desktop/session]
-      idle-delay=uint32 0
-
-      [org/gnome/desktop/screensaver]
-      lock-enabled=false
-      EOF"
+    - install -D /run/cidata/assets/00-power /target/etc/dconf/db/local.d/00-power
     - curtin in-target --target=/target -- dconf update
     # Configure global git defaults
     - curtin in-target --target=/target -- git config --system init.defaultBranch main
     - curtin in-target --target=/target -- git config --system fetch.prune true
     # Wait for getty to finish to avoid login prompt race with late services
-    - curtin in-target --target=/target -- mkdir -p /etc/systemd/system/getty@tty1.service.d
-    - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/systemd/system/getty@tty1.service.d/override.conf
-      [Unit]
-      After=cloud-init-final.service
-      Wants=cloud-init-final.service
-
-      [Service]
-      ExecStartPre=/usr/bin/test -f /run/cloud-init/result.json
-      EOF"
-    - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /usr/local/sbin/cleanup-getty-override.sh
-      #!/bin/bash
-      cat << 'OVERRIDE_EOF' > /etc/systemd/system/getty@tty1.service.d/override.conf
-      [Unit]
-      After=systemd-update-utmp-runlevel.service apport.service
-      Wants=systemd-update-utmp-runlevel.service apport.service
-      OVERRIDE_EOF
-      
-      rm -f /etc/systemd/system/cleanup-getty-override.service
-      rm -f /etc/systemd/system/multi-user.target.wants/cleanup-getty-override.service
-      rm -f /usr/local/sbin/cleanup-getty-override.sh
-      EOF"
-    - curtin in-target --target=/target -- chmod +x /usr/local/sbin/cleanup-getty-override.sh
-    - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/systemd/system/cleanup-getty-override.service
-      [Unit]
-      Description=Mutate getty override after first boot
-      After=multi-user.target
-
-      [Service]
-      Type=oneshot
-      ExecStart=/usr/local/sbin/cleanup-getty-override.sh
-
-      [Install]
-      WantedBy=multi-user.target
-      EOF"
+    - install -D /run/cidata/assets/override.conf /target/etc/systemd/system/getty@tty1.service.d/override.conf
+    - install -D /run/cidata/assets/cleanup-getty-override.sh /target/usr/local/sbin/cleanup-getty-override.sh
+    - chmod +x /target/usr/local/sbin/cleanup-getty-override.sh
+    - install -D /run/cidata/assets/cleanup-getty-override.service /target/etc/systemd/system/cleanup-getty-override.service
     - curtin in-target --target=/target -- systemctl enable cleanup-getty-override.service
+    # Add script for regenerating identity details during imaging
+    - install -D /run/cidata/assets/reset-identity.sh /target/usr/local/sbin/reset-identity.sh
+    - chmod +x /target/usr/local/sbin/reset-identity.sh
     # Emit instructions during first login
-    - curtin in-target --target=/target -- mkdir -p /etc/profile.d
-    - |
-      curtin in-target --target=/target -- bash -c "cat << 'EOF' > /etc/profile.d/first-login-msg.sh
-      #!/bin/sh
-      cat << 'MSG'
-
-      Welcome! This system was installed using a default sysadmin account.
-      Please create your own user before starting work.
-
-          1. Create a user account:
-              sudo adduser <newuser>
-
-          2. Add the user to the 'sudo' group for administrative privileges:
-              sudo usermod -aG sudo <newuser>
-
-          3. Verify the changes:
-              id <newuser>
-              groups <newuser>
-            ... should include your new username, and the group 'sudo'
-
-          4. Enable and start the ssh server:
-              sudo systemctl enable --now ssh.service
-
-      After completing these steps, you can remove this message by running:
-          sudo rm /etc/profile.d/first-login-msg.sh
-
-      MSG
-      EOF"
+    - mkdir -p /target/etc/profile.d
+    - install -D /run/cidata/assets/first-login-msg.sh /target/etc/profile.d/first-login-msg.sh
+    # Unmount autoinstall filesystem
+    - umount /run/cidata
+    # Remove autoinstall data so reset-identity.sh does not re-trigger it
+    - rm -f /target/var/lib/cloud/seed/nocloud/user-data
+    - rm -f /target/var/lib/cloud/seed/nocloud/meta-data

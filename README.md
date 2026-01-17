@@ -25,7 +25,7 @@ Create a virtual machine per the usual EDURange specifications, but be sure to u
 - Click "Finish", but do not start the VM after VirtualBox finishes creating it; we haven't attached the autoinstall configuration yet
  
 Adjust the settings of the virtual machine to add a bridged network adapter and attach the autoinstall media:
-- Images are attached to releases in this repo, such as https://github.com/edurange/lab-autoinstall/releases/download/v0.1.0-alpha/autoinstall-24.04.iso - you can generate your own image, but I'm not prepared to give a full explanation of what's required here
+- Images are attached to releases in this repo, such as https://github.com/edurange/lab-autoinstall/releases/download/v0.1.0-beta/autoinstall-24.04-v0.1.0b.iso - you can generate your own image, but I'm not prepared to give a full explanation of what's required here
 - Select the VM in the main window, and then click "Settings" in the toolbar or right-click context menu
 - Select the "Network" section
 - The view should default to the first tab in the "Network" section, "Adapter 1"; under "Attached to" change the drop-down menu to "Bridged Adapter" (this allows your VM to be seen on the local network, which makes SSH access simpler)

@@ -37,6 +37,12 @@ if command -v cloud-init >/dev/null 2>&1; then
   cloud-init clean --logs --machine-id
 fi
 
+systemctl enable ssh
+systemctl start ssh
+
 echo
 echo "Identity reset complete."
 echo "Reboot REQUIRED to regenerate identities."
+echo "When booting cloud-init may emit output that races with the login"
+echo "prompt; this is normal and should only occur once after identity"
+echo "keys are regenerated."

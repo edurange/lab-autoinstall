@@ -4,3 +4,19 @@
 # Local Mac filesystem cache
 .DS_Store
 ._*
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Pytest / coverage
+htmlcov/
+.coverage
+.cache/
+.pytest_cache/
+
+# VSCode / editor
+.vscode/
+.idea/
+*.swp
